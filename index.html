@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ASTRA Ω — The Human Spaceflight Intelligence System &amp; Smart Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Cairo:wght@400;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-emblem" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="9"/>
+        <ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(-24 12 12)"/>
+        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-title">ASTRA Ω <span id="topModeTag">// QUICK COMPANION</span></div>
+      <div class="brand-sub" data-i18n="tagline">Understand the signal. Protect the mission. Support the human.</div>
+    </div>
+  </div>
+
+  <div class="top-controls">
+    <div class="ui-mode-pill" role="group" aria-label="Interface Complexity Mode">
+      <button type="button" id="btnQuickMode" class="active" data-i18n="quickMode">Quick Mode</button>
+      <button type="button" id="btnMcMode" data-i18n="mcMode">Mission Control</button>
+    </div>
+    <button class="cmd-btn" id="btnTourOpen" type="button" data-i18n="tourBtn">? Guide</button>
+    <button class="cmd-btn" id="langBtn" type="button">العربية</button>
+  </div>
+</header>
+
+<div class="context-ribbon">
+  <div class="ctx-group">
+    <div class="crew-pill-row" id="crewSelectorRow" role="group" aria-label="Select Crew Profile"></div>
+    <select id="dataModeSelect" aria-label="Data Mode" style="width:auto;min-height:36px;padding:4px 10px;font-size:12px;font-weight:700">
+      <option value="demo">DATA: DEMO / TEST FIXTURE</option>
+      <option value="research">DATA: RESEARCH BENCHMARKS</option>
+      <option value="connected">DATA: CONNECTED (NASA DONKI)</option>
+    </select>
+  </div>
+  <div class="ctx-group">
+    <span class="tag-badge sim" id="ribbonDataBadge">DEMO / TEST FIXTURE • NON-DIAGNOSTIC</span>
+    <span class="mono" id="metClock">MET 00:00:00</span>
+  </div>
+</div>
+
+<div class="shell">
+  <aside class="nav-rail" aria-label="Primary Navigation">
+    <div class="nav-sec-label" data-i18n="navPrimary">DAILY WORKFLOW</div>
+    <button class="nav-item active" data-dest="home" type="button">
+      <span>🏠</span><span data-i18n="destHome">Home / Today</span>
+    </button>
+    <button class="nav-item" data-dest="smartmonitor" type="button">
+      <span>💓</span><span data-i18n="destSmartMon">Smart Health Monitor</span>
+      <span class="nav-badge live-glow">125Hz</span>
+    </button>
+    <button class="nav-item" data-dest="checkin" type="button">
+      <span>✅</span><span data-i18n="destCheckin">Daily Check-in</span>
+    </button>
+    <button class="nav-item" data-dest="activity" type="button">
+      <span>🏃</span><span data-i18n="destActivity">Health &amp; Activity</span>
+    </button>
+    <button class="nav-item" data-dest="explorer3d" type="button">
+      <span>🧬</span><span data-i18n="dest3D">3D Explorer</span>
+    </button>
+    <button class="nav-item" data-dest="timeline" type="button">
+      <span>🕒</span><span data-i18n="destTimeline">Timeline</span>
+    </button>
+
+    <div class="nav-sec-label" data-i18n="navSecondary">INTELLIGENCE &amp; RESEARCH</div>
+    <button class="nav-item" data-dest="insights" type="button">
+      <span>🔔</span><span data-i18n="destInsights">Insights &amp; Alerts</span>
+      <span class="nav-badge" id="railAlertBadge">0</span>
+    </button>
+    <button class="nav-item" data-dest="research" type="button">
+      <span>📚</span><span data-i18n="destResearch">Research Library</span>
+    </button>
+    <button class="nav-item" data-dest="scenario" type="button">
+      <span>🛸</span><span data-i18n="destScenario">Scenario &amp; Delay Lab</span>
+    </button>
+    <button class="nav-item" data-dest="reports" type="button">
+      <span>📄</span><span data-i18n="destReports">Reports &amp; Notes</span>
+    </button>
+    <button class="nav-item" data-dest="settings" type="button">
+      <span>⚙️</span><span data-i18n="destSettings">Settings &amp; Diagnostics</span>
+    </button>
+  </aside>
+
+  <main class="workspace">
+
+    <!-- 1. HOME / TODAY -->
+    <section class="module-view active" id="view-home">
+      <div class="page-head">
+        <div>
+          <h1 id="homeGreeting">Today — Mission Health Overview</h1>
+          <p data-i18n="homeSub">Your daily check-in status, recent activity &amp; sleep records, interactive 3D twin preview, and data-quality notices in one calm view.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="cmd-btn active" type="button" onclick="navigateTo('smartmonitor')">💓 Smart Health Monitor HUD</button>
+          <button class="primary" type="button" onclick="navigateTo('checkin')" data-i18n="ctaCheckin">Complete 60s Check-In</button>
+        </div>
+      </div>
+
+      <div class="kpi-row" id="homeKpiRow"></div>
+
+      <div class="card">
+        <div class="card-h">
+          <h2 data-i18n="home3dTitle">Spatial Context &amp; Human Digital Twin Centerpiece</h2>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="ghost" type="button" onclick="navigateTo('smartmonitor')">💓 Smart Holographic Scanner</button>
+            <button class="ghost" type="button" onclick="navigateTo('explorer3d');switchScene3D('twin')" data-i18n="openFullTwinBtn">Open Full 3D Twin</button>
+            <button class="ghost" type="button" onclick="navigateTo('explorer3d');switchScene3D('exercise')" data-i18n="openExBayBtn">3D Orbital Recovery</button>
+          </div>
+        </div>
+        <div class="stage-wrap home-hero" id="homeHero3DStage">
+          <div class="hud-top">
+            <div class="hud-chip mono">
+              <div class="muted" style="font-size:10px" data-i18n="illusBadge">ILLUSTRATIVE 3D VISUALIZATION — NOT A MEDICAL SCAN</div>
+              <div id="homeHeroCaption" style="font-weight:700">Interactive Cislunar &amp; Crew Physiological Context</div>
+            </div>
+          </div>
+          <div class="hud-bottom">
+            <div class="hotspot-bar">
+              <button type="button" class="hotspot-btn active" onclick="navigateTo('smartmonitor')">💓 Smart Monitor HUD</button>
+              <button type="button" class="hotspot-btn" onclick="navigateTo('explorer3d');switchScene3D('twin')">🧬 Human Digital Twin</button>
+              <button type="button" class="hotspot-btn" onclick="navigateTo('explorer3d');switchScene3D('exercise')">🏋️ Orbital Recovery</button>
+              <button type="button" class="hotspot-btn" onclick="navigateTo('explorer3d');switchScene3D('habitat')">🛰️ Habitat Cutaway</button>
+              <button type="button" class="hotspot-btn" onclick="navigateTo('explorer3d');switchScene3D('orbit')">🌍 Earth–Moon–Mars</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-h">
+            <h2 data-i18n="homeActionsTitle">Recommended Next Steps</h2>
+            <button class="ghost" type="button" onclick="openEvidencePassport('HOME-OVERVIEW')" data-i18n="whySeeingBtn">Why am I seeing this?</button>
+          </div>
+          <div id="homeActionList" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-h">
+            <h2 data-i18n="homeQuickLaunchTitle">Quick Launchers</h2>
+            <span class="tag-badge sim">TEST FIXTURE</span>
+          </div>
+          <div class="grid-2">
+            <button class="more-tile" type="button" onclick="navigateTo('smartmonitor')">
+              <span>💓 Smart Astronaut Health Monitor</span>
+              <small>125 Hz ECG, InBody 970, 0G Fluid Shift &amp; 3D Scanner</small>
+            </button>
+            <button class="more-tile" type="button" onclick="navigateTo('activity')">
+              <span>🏋️ Orbital Recovery Journal</span>
+              <small>Log exercise session &amp; before/after observations</small>
+            </button>
+            <button class="more-tile" type="button" onclick="navigateTo('explorer3d');switchScene3D('twin')">
+              <span>🧬 3D Human Digital Twin</span>
+              <small>Explore 6 physiological systems &amp; research links</small>
+            </button>
+            <button class="more-tile" type="button" onclick="navigateTo('research')">
+              <span>🔬 NASA HRP &amp; OSDR Library</span>
+              <small>Browse 5 spaceflight hazards &amp; verified datasets</small>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mc-only-block" id="mcLiveStreamCard">
+        <div class="card-h">
+          <h2 data-i18n="mcStreamTitle">Simulated Biometric Stream &amp; Raw vs Smoothed Signal Inspector (Mission Control)</h2>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <span class="tag-badge sim">SIMULATED 1Hz STREAM • NON-DIAGNOSTIC</span>
+            <button class="ghost" id="pauseStreamBtn" type="button">⏸ Pause</button>
+          </div>
+        </div>
+        <div id="scenarioButtonsRow" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+        <div class="vitals-grid" id="vitalsTilesGrid"></div>
+
+        <div class="sub-card" style="margin-top:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <b>Signal Inspector: Raw (1 Hz) vs Derived 5-Sample Rolling Mean</b>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <select id="mcSignalSelect" style="width:auto;min-height:36px;padding:4px 8px;font-size:12px" aria-label="Inspect Signal">
+                <option value="hr">Heart Rate (bpm)</option>
+                <option value="spo2">Blood Oxygen SpO₂ (%)</option>
+                <option value="temp">Core Temp (°C)</option>
+                <option value="resp">Respiration (/min)</option>
+                <option value="bp">Systolic BP (mmHg)</option>
+                <option value="rad">Ambient Dose Rate (µSv/h)</option>
+                <option value="stress">Workload Index (/100)</option>
+              </select>
+              <button class="ghost" type="button" id="btnToggleRolling" style="min-height:36px">Toggle 5-pt Mean</button>
+              <button class="ghost" type="button" id="btnToggleGapSim" style="min-height:36px">Simulate Sensor Gap</button>
+            </div>
+          </div>
+          <div class="leg" style="margin-top:4px">
+            <span><i class="sw" style="background:var(--accent)"></i>Raw Simulated Series</span>
+            <span><i class="sw" style="background:var(--accent2)"></i>Derived 5-Sample Rolling Mean</span>
+            <span class="mono" id="mcSignalMeta">Samples: 60 | Missingness: 0%</span>
+          </div>
+          <div class="chart" id="mcSignalChart"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW INTEGRATED MODULE: SMART ASTRONAUT HEALTH MONITOR (FROM SCREENSHOTS) -->
+    <section class="module-view" id="view-smartmonitor">
+      <div class="sm-shell" id="smShellRoot">
+
+        <!-- Top Smart Monitor Telemetry Header Bar -->
+        <div class="sm-topbar">
+          <div class="sm-brand">
+            <div class="sm-logo-box" id="smHeaderIcon">🩺</div>
+            <div>
+              <div class="sm-title">
+                <span>Smart Astronaut Health Monitor</span>
+                <span class="sm-nasa-pill">NASA SPACE APPS</span>
+              </div>
+              <div class="sm-sub">Smart Biometric Telemetry • Wearable Sync, InBody, Edge-AI &amp; Microgravity Sim</div>
+            </div>
+          </div>
+
+          <div class="sm-controls">
+            <button type="button" class="sm-pill-btn active-cyan" id="smBtnInbodyFocus">⚖️ InBody &amp; Profile</button>
+            <button type="button" class="sm-pill-btn active-purple" id="smBtnGravity">🌀 Microgravity (0G)</button>
+            <button type="button" class="sm-pill-btn" id="smBtnEva">🧑‍🚀 Simulate EVA</button>
+            <button type="button" class="sm-pill-btn alert-btn" id="smBtnAlert">🚨 Simulate Alert</button>
+          </div>
+
+          <div class="sm-status-strip">
+            <div class="sm-stat-chip">
+              <span>🔋 Battery: <b style="color:#34d399">84%</b> (40h)</span>
+              <div class="sm-bat-bar"><div class="sm-bat-fill"></div></div>
+            </div>
+            <div class="sm-stat-chip" style="border-color:rgba(56,189,248,0.45);color:#7dd3fc">📡 AOS Ground Link</div>
+            <div class="sm-stat-chip" style="border-color:rgba(16,185,129,0.45);color:#6ee7b7" id="smSignalDbm">📶 -53dBm</div>
+          </div>
+        </div>
+
+        <!-- Critical Biometric Alert Banner (Visible in Alert / Emergency State) -->
+        <div class="sm-emergency-banner" id="smEmergencyBanner" role="alert">
+          <div class="sm-em-top">
+            <div class="sm-em-title">
+              <span>🛡️ CRITICAL BIOMETRIC ALERT: SEVERE HYPOXIA / TACHYCARDIA</span>
+              <span class="sm-sos-badge">SOS BEACON ACTIVE → HOUSTON MCC</span>
+            </div>
+          </div>
+          <div style="font-size:12.5px;color:#fee2e2" id="smEmergencySub">
+            Spacesuit auto-response protocol engaged: SpO2 at 88.8% and HR at 162 BPM. Execute checklist immediately:
+          </div>
+          <div class="sm-em-checklist" id="smChecklistRow">
+            <button type="button" class="sm-chk-step" data-step="1">○ 1. Open Secondary O2 Valve</button>
+            <button type="button" class="sm-chk-step" data-step="2">○ 2. Verify Suit Pressure (4.3 PSI)</button>
+            <button type="button" class="sm-chk-step" data-step="3">○ 3. Return to Airlock</button>
+            <button type="button" class="sm-chk-step" data-step="4">○ 4. Infuse Electrolyte Solution</button>
+          </div>
+        </div>
+
+        <!-- Main 3-Column Smart Monitor Grid -->
+        <div class="sm-grid-3">
+
+          <!-- LEFT COLUMN: Live Wearable Stream + Cosmic Radiation + InBody Profile -->
+          <div class="sm-col">
+            <!-- Live Wearable Stream (PPG / ECG) -->
+            <div class="sm-card">
+              <div class="sm-card-head">
+                <div class="sm-card-title">🔵 Live Wearable Stream (PPG / ECG)</div>
+                <span class="sm-live-pill">125 HZ LIVE</span>
+              </div>
+              <div class="sm-ecg-box">
+                <svg id="smEcgSvg" viewBox="0 0 420 60" preserveAspectRatio="none" style="width:100%;height:100%">
+                  <defs>
+                    <pattern id="smGridPat" width="20" height="20" patternUnits="userSpaceOnUse">
+                      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(56,189,248,0.12)" stroke-width="0.7"/>
+                    </pattern>
+                  </defs>
+                  <rect width="420" height="60" fill="url(#smGridPat)"/>
+                  <polyline id="smEcgLine" fill="none" stroke="#38bdf8" stroke-width="2" points="0,32 420,32"/>
+                </svg>
+              </div>
+              <div class="sm-vital-2x2">
+                <div class="sm-vtile" id="smTileHr">
+                  <div class="sm-vtile-top"><span>Heart Rate</span><span style="color:#f43f5e">♡</span></div>
+                  <div class="sm-vtile-val"><span id="smValHr">70</span><span class="sm-vtile-unit">BPM</span></div>
+                </div>
+                <div class="sm-vtile" id="smTileSpo2">
+                  <div class="sm-vtile-top"><span>Blood Oxygen</span><span style="color:#38bdf8">≋</span></div>
+                  <div class="sm-vtile-val"><span id="smValSpo2">98.3%</span><span class="sm-vtile-unit">SpO2</span></div>
+                </div>
+                <div class="sm-vtile" id="smTileTbw">
+                  <div class="sm-vtile-top"><span>Total Body Water</span><span style="color:#38bdf8">💧</span></div>
+                  <div class="sm-vtile-val"><span id="smValTbw">64.5%</span><span class="sm-vtile-unit">TBW</span></div>
+                </div>
+                <div class="sm-vtile" id="smTileTemp">
+                  <div class="sm-vtile-top"><span>Core Body Temp</span><span style="color:#f59e0b">🌡️</span></div>
+                  <div class="sm-vtile-val"><span id="smValTemp">36.7°</span><span class="sm-vtile-unit">CELSIUS</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cosmic Radiation & Circadian Rhythm -->
+            <div class="sm-card">
+              <div class="sm-card-head">
+                <div class="sm-card-title">☢️ Cosmic Radiation &amp; Circadian Rhythm</div>
+                <span class="tag-badge der">ISS ORBIT #11/16</span>
+              </div>
+              <div class="sm-rad-grid">
+                <div class="sm-rad-box">
+                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+                    <span>Cumulative Radiation Dose</span>
+                    <b class="mono" style="color:#c4b5fd" id="smRadRate">18.7 µSv/h</b>
+                  </div>
+                  <div class="mono" style="font-size:1.05rem;font-weight:700;margin-top:4px">
+                    <span id="smRadCum">142.412</span> <small class="muted" style="font-size:11px">/ 600 mSv</small>
+                  </div>
+                  <div class="sm-rad-bar"><div class="sm-rad-fill" id="smRadBar"></div></div>
+                </div>
+                <div class="sm-rad-box">
+                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+                    <span>Circadian Rhythm</span>
+                    <span style="color:#fbbf24">☀️</span>
+                  </div>
+                  <div style="font-size:12px;font-weight:700;color:#38bdf8;margin-top:4px">Optimal Sleep Window: 21:30 UTC</div>
+                  <div class="muted" style="font-size:11px;margin-top:2px">Melatonin + 300ml H2O in 3 hours</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Body Composition Profile (InBody) -->
+            <div class="sm-card" id="smInbodyCard">
+              <div class="sm-card-head">
+                <div class="sm-card-title">👤 Body Composition Profile (InBody)</div>
+                <span class="mono muted" style="font-size:11px">ARTEMIS-X7</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;background:rgba(12,21,44,0.85);padding:9px 11px;border-radius:10px;border:1px solid var(--line)">
+                <div>
+                  <div style="font-weight:700;font-size:13px" id="smSubjectName">Astronaut / Tariq Al-Mansoor</div>
+                  <div class="muted" style="font-size:11px" id="smSubjectMeta">Male • 34 yrs • 178 cm</div>
+                </div>
+                <span class="tag-badge">InBody 970 Space-Sync</span>
+              </div>
+              <div class="sm-inbody-row">
+                <div class="sm-inbody-cell">
+                  <div class="muted" style="font-size:10.5px">Total Weight</div>
+                  <div class="mono" style="font-weight:700;font-size:14px" id="smIbWeight">76.4 kg</div>
+                </div>
+                <div class="sm-inbody-cell">
+                  <div class="muted" style="font-size:10.5px">Muscle Mass</div>
+                  <div class="mono" style="font-weight:700;font-size:14px;color:#38bdf8" id="smIbMuscle">36.8 kg</div>
+                </div>
+                <div class="sm-inbody-cell">
+                  <div class="muted" style="font-size:10.5px">Body Fat</div>
+                  <div class="mono" style="font-weight:700;font-size:14px" id="smIbFat">14.2%</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <button type="button" class="primary" id="smBtnSyncInbody" style="min-height:38px;font-size:12.5px">🔄 Sync InBody</button>
+                <button type="button" class="ghost" id="smBtnManualInbody" style="min-height:38px;font-size:12.5px">🎚️ Manual Entry</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- CENTER COLUMN: 3D Wireframe Mesh Holographic Scanner -->
+          <div class="sm-col">
+            <div class="sm-card sm-scanner-card" style="height:100%;justify-content:space-between">
+              <div class="sm-card-head">
+                <span class="mono" style="font-size:11px;letter-spacing:0.08em;color:#38bdf8;font-weight:700">3D WIREFRAME MESH HOLOGRAPHIC SCANNER</span>
+                <button type="button" class="sm-pill-btn active-cyan" id="smBtnHoloRotate" style="min-height:32px;font-size:11px">🔄 3D Wireframe Rotate: ON</button>
+              </div>
+
+              <div class="sm-scanner-tabs" role="tablist">
+                <button type="button" class="sm-stab active" data-smtab="h2o">Hydration (H2O)</button>
+                <button type="button" class="sm-stab" data-smtab="o2">Oxygen (O2)</button>
+                <button type="button" class="sm-stab" data-smtab="inbody">InBody Mass</button>
+              </div>
+
+              <div class="sm-holo-stage" id="smHoloStage">
+                <div class="sm-callout upper" id="smCalloutUpper">
+                  <div style="font-weight:700;color:#c4b5fd">⬆ Upper Pool: 64%</div>
+                  <div class="muted" style="font-size:10px">Puffy Face / Ocular Pressure</div>
+                </div>
+                <div class="sm-callout lower" id="smCalloutLower">
+                  <div style="font-weight:700;color:#e2e8f0">Lower Limbs: 36%</div>
+                </div>
+                <div class="sm-big-readout">
+                  <div class="sm-big-num" id="smBigPct">65%</div>
+                  <div class="sm-big-sub" id="smBigSub">Total Body Water Ratio (TBW)</div>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="sub-card" style="padding:9px 12px;flex-direction:row;justify-content:space-between;align-items:center">
+                  <span class="muted" style="font-size:11.5px">Fluid Shift:</span>
+                  <b class="mono" style="font-size:12px;color:#38bdf8" id="smFluidShiftVal">64% Upper / 36% Lower</b>
+                </div>
+                <div class="sub-card" style="padding:9px 12px;flex-direction:row;justify-content:space-between;align-items:center">
+                  <span class="muted" style="font-size:11.5px">Suit Pressure:</span>
+                  <b class="mono" style="font-size:12px;color:#38bdf8">4.3 PSI</b>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: Predictive AI Timeline (+4 Hours) + AI Flight Surgeon Diagnostics + Medical Logs -->
+          <div class="sm-col">
+            <!-- Predictive AI Timeline (+4 Hours) -->
+            <div class="sm-card">
+              <div class="sm-card-head">
+                <div>
+                  <div class="sm-card-title">📈 Predictive AI Timeline (+4 Hours)</div>
+                  <div class="muted" style="font-size:11px">Metabolic hydration &amp; O2 depletion trajectory</div>
+                </div>
+                <span class="tag-badge">AI FORECAST</span>
+              </div>
+              <div class="sm-ecg-box" style="height:112px;padding:8px">
+                <svg id="smForecastSvg" viewBox="0 0 380 96" style="width:100%;height:100%"></svg>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+                <span class="muted">Est. Time to Dehydration Threshold:</span>
+                <b class="mono" style="color:#38bdf8" id="smDehydEst">14 hrs &amp; 37 mins</b>
+              </div>
+            </div>
+
+            <!-- AI Flight Surgeon Diagnostics -->
+            <div class="sm-card">
+              <div class="sm-card-head">
+                <div>
+                  <div class="sm-card-title">🧠 AI Flight Surgeon Diagnostics</div>
+                  <div class="muted" style="font-size:11px">Correlating Wearable, InBody &amp; 0G Telemetry</div>
+                </div>
+                <button type="button" class="sm-pill-btn active-cyan" id="smBtnAiScan" style="min-height:32px;font-size:11.5px">✨ AI Scan</button>
+              </div>
+
+              <div class="sm-diag-card purple" id="smDiagCephalad">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+                  <b style="font-size:12.5px;color:#ddd6fe">🌀 Microgravity Fluid Shift (Cephalad Shift)</b>
+                  <span class="mono" style="font-size:10px;color:#c4b5fd">0G ACTIVE</span>
+                </div>
+                <p class="muted" style="font-size:11.5px">64% upper body fluid pooling increases SANS ocular risk. 20-min LBNP session recommended.</p>
+              </div>
+
+              <div class="sm-diag-card green">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+                  <b style="font-size:12.5px;color:#6ee7b7">✅ Hydration &amp; Oxygen Equilibrium Optimal</b>
+                  <span class="mono" style="font-size:10.5px;color:#34d399">Conf. 98.4%</span>
+                </div>
+                <p class="muted" style="font-size:11.5px" id="smDiagEquilText">Total body water (64.5%) aligns with InBody skeletal muscle mass (36.8 kg).</p>
+              </div>
+
+              <div class="sm-diag-card amber">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+                  <b style="font-size:12.5px;color:#fde68a">⚠️ Pre-EVA Preventive Hydration Advisory</b>
+                  <span class="mono" style="font-size:10.5px;color:#fbbf24">Conf. 94.1%</span>
+                </div>
+                <p class="muted" style="font-size:11.5px">Consume 350 ml electrolyte solution to offset expected microgravity fluid loss.</p>
+              </div>
+            </div>
+
+            <!-- Medical & Mission Logs -->
+            <div class="sm-card">
+              <div class="sm-card-head">
+                <div class="sm-card-title">📋 Medical &amp; Mission Logs</div>
+                <span class="mono muted" style="font-size:11.5px" id="smLogsCount">2 Logs</span>
+              </div>
+              <form id="smAddLogForm" style="display:grid;grid-template-columns:1fr auto auto;gap:6px">
+                <input id="smLogInput" type="text" placeholder="Add flight surgeon or crew note..." style="min-height:38px;font-size:12px">
+                <select id="smLogSev" aria-label="Log Severity" style="width:auto;min-height:38px;font-size:12px;padding:4px 8px">
+                  <option value="Normal">Normal</option>
+                  <option value="Caution">Caution</option>
+                  <option value="Critical">Critical</option>
+                </select>
+                <button type="submit" class="primary" style="min-height:38px;padding:0 12px" aria-label="Add Log">+</button>
+              </form>
+              <div id="smLogsList" style="display:flex;flex-direction:column;gap:7px;max-height:175px;overflow-y:auto"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. DAILY CHECK-IN -->
+    <section class="module-view" id="view-checkin">
+      <div class="page-head">
+        <div>
+          <h1 data-i18n="ciPageTitle">60-Second Daily Check-In, Sleep &amp; Hydration</h1>
+          <p data-i18n="ciPageSub">Quick, private self-report. Skip any field you prefer not to enter; self-reports are not clinical diagnoses.</p>
+        </div>
+        <span class="tag-badge man">MANUAL ENTRY • PRIVATE BY DEFAULT</span>
+      </div>
+
+      <div class="grid-2">
+        <form class="card" id="dailyCheckinForm" novalidate>
+          <div class="card-h">
+            <h2 data-i18n="ciFormTitle">Today's Self-Report</h2>
+            <button class="ghost" type="button" id="btnSaveDraft">Save Draft</button>
+          </div>
+
+          <div class="fgrid">
+            <div class="field">
+              <label for="ci-sleep" data-i18n="ciSleepLbl">Sleep Duration (hours, optional)</label>
+              <input id="ci-sleep" type="number" min="0" max="24" step="0.5" placeholder="7.5">
+              <small>Benchmark context: 7–9 h (SRC-NASA-HRP-01)</small>
+            </div>
+            <div class="field">
+              <label for="ci-hydration" data-i18n="ciHydLbl">Hydration Intake (Liters, optional)</label>
+              <input id="ci-hydration" type="number" min="0" max="10" step="0.1" placeholder="2.2">
+              <small>Recorded with unit (L); no rigid target imposed</small>
+            </div>
+
+            <div class="field wide">
+              <span class="lab" data-i18n="ciSleepQualLbl">Subjective Sleep Quality (1 = Very Restless, 5 = Restorative)</span>
+              <div class="rating-row" data-rating="sleepQual">
+                <button type="button" class="rate-btn" data-val="1">1</button>
+                <button type="button" class="rate-btn" data-val="2">2</button>
+                <button type="button" class="rate-btn" data-val="3">3</button>
+                <button type="button" class="rate-btn active" data-val="4">4</button>
+                <button type="button" class="rate-btn" data-val="5">5</button>
+              </div>
+            </div>
+
+            <div class="field wide">
+              <span class="lab" data-i18n="ciEnergyLbl">Energy / Readiness Level (1 = Very Fatigued, 5 = High Energy)</span>
+              <div class="rating-row" data-rating="energy">
+                <button type="button" class="rate-btn" data-val="1">1</button>
+                <button type="button" class="rate-btn" data-val="2">2</button>
+                <button type="button" class="rate-btn" data-val="3">3</button>
+                <button type="button" class="rate-btn active" data-val="4">4</button>
+                <button type="button" class="rate-btn" data-val="5">5</button>
+              </div>
+            </div>
+
+            <div class="field wide">
+              <span class="lab" data-i18n="ciMoodLbl">Mood / Workload Calmness (1 = High Strain, 5 = Calm &amp; Focused)</span>
+              <div class="rating-row" data-rating="mood">
+                <button type="button" class="rate-btn" data-val="1">1</button>
+                <button type="button" class="rate-btn" data-val="2">2</button>
+                <button type="button" class="rate-btn" data-val="3">3</button>
+                <button type="button" class="rate-btn active" data-val="4">4</button>
+                <button type="button" class="rate-btn" data-val="5">5</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="ci-activityDone" data-i18n="ciActDoneLbl">Scheduled Exercise Completed?</label>
+              <select id="ci-activityDone">
+                <option value="yes">Yes — Completed session</option>
+                <option value="partial">Partial — Modified duration</option>
+                <option value="rest">Scheduled Rest Day</option>
+                <option value="skipped">Not completed today</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="ci-nutrition" data-i18n="ciNutrLbl">Appetite / Meal Context (optional)</label>
+              <input id="ci-nutrition" type="text" placeholder="e.g., Normal appetite, 3 meals">
+            </div>
+
+            <div class="field wide">
+              <label for="ci-notes" data-i18n="ciNotesLbl">Optional Reflection or Symptom Note (Private)</label>
+              <textarea id="ci-notes" placeholder="Optional note (e.g., mild nasal congestion from fluid shift, noise near sleep berth)..."></textarea>
+            </div>
+          </div>
+
+          <p class="err" id="ciFormErr" role="alert"></p>
+          <button class="primary" type="submit" style="width:100%;margin-top:8px" data-i18n="ciSubmitBtn">Save Daily Check-In</button>
+        </form>
+
+        <div class="card">
+          <div class="card-h">
+            <h2 data-i18n="ciHistTitle">Recent Check-Ins &amp; Sleep Rhythm</h2>
+            <span class="tag-badge der">GAPS PRESERVED</span>
+          </div>
+          <p class="muted" style="font-size:12.5px;margin-bottom:10px">Missing days are left visibly unrecorded without judgment or synthetic gap-filling.</p>
+          <div id="checkinHistoryList" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. HEALTH & ACTIVITY -->
+    <section class="module-view" id="view-activity">
+      <div class="page-head">
+        <div>
+          <h1 data-i18n="actPageTitle">Orbital Recovery &amp; Health Measurements</h1>
+          <p data-i18n="actPageSub">Record exercise &amp; recovery sessions alongside manual clinical vitals. Temporal proximity does not imply causation.</p>
+        </div>
+        <button class="ghost" type="button" onclick="navigateTo('explorer3d');switchScene3D('exercise')">Open 3D Exercise Bay</button>
+      </div>
+
+      <div class="grid-2">
+        <form class="card" id="exerciseForm" novalidate>
+          <div class="card-h">
+            <h2 data-i18n="exFormTitle">Orbital Recovery — Log Exercise Session</h2>
+            <span class="tag-badge man">MANUAL ENTRY</span>
+          </div>
+          <div class="fgrid">
+            <div class="field">
+              <label for="ex-type">Exercise Station / Modality</label>
+              <select id="ex-type">
+                <option value="ARED Resistive Exercise">ARED Resistive Exercise</option>
+                <option value="T2 Treadmill">T2 Treadmill (Harnessed)</option>
+                <option value="CEVIS Cycle Ergometer">CEVIS Cycle Ergometer</option>
+                <option value="Mobility & Recovery Stretch">Mobility &amp; Recovery Stretch</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="ex-dur">Duration (minutes)</label>
+              <input id="ex-dur" type="number" min="1" max="300" step="1" value="45" required>
+            </div>
+            <div class="field">
+              <label for="ex-phase">Session Phase</label>
+              <select id="ex-phase">
+                <option value="After / Post-Session">After / Post-Session</option>
+                <option value="Before / Pre-Session">Before / Pre-Session</option>
+                <option value="During Session">During Session</option>
+                <option value="Recovery Follow-Up">Recovery Follow-Up (+2h)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="ex-rpe">Perceived Exertion (RPE 1–10)</label>
+              <input id="ex-rpe" type="number" min="1" max="10" step="1" value="6">
+            </div>
+            <div class="field">
+              <label for="ex-preFeel">Pre-Session Self-Report</label>
+              <input id="ex-preFeel" type="text" placeholder="e.g., Slightly stiff lower back">
+            </div>
+            <div class="field">
+              <label for="ex-postFeel">Post-Session / Recovery Feeling</label>
+              <input id="ex-postFeel" type="text" placeholder="e.g., Loosened up, steady breathing">
+            </div>
+            <div class="field">
+              <label for="ex-hr">Measured Heart Rate (bpm, optional)</label>
+              <input id="ex-hr" type="number" min="30" max="220" placeholder="Leave blank if unmeasured">
+            </div>
+            <div class="field">
+              <label for="ex-spo2">Measured SpO₂ (%, optional)</label>
+              <input id="ex-spo2" type="number" min="50" max="100" placeholder="Leave blank if unmeasured">
+            </div>
+          </div>
+          <p class="err" id="exFormErr" role="alert"></p>
+          <button class="primary" type="submit" style="width:100%;margin-top:8px">Record Exercise &amp; Recovery Entry</button>
+        </form>
+
+        <div class="card">
+          <div class="card-h">
+            <h2>Exercise &amp; Recovery History</h2>
+            <span class="tag-badge der">TEMPORAL ASSOCIATION ONLY</span>
+          </div>
+          <div class="disclaimer-box" style="margin-bottom:10px">
+            <span>ℹ️</span>
+            <span>Unentered physiological sensors display <b>NO MEASUREMENT AVAILABLE</b>. Comparing pre- and post-session notes tracks observations over time without claiming medical causation.</span>
+          </div>
+          <div id="exerciseHistoryList" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+
+      <!-- PRESERVED MANUAL CLINICAL LOG & 21-DAY CHARTS (#vitals) -->
+      <section id="vitals" style="display:flex;flex-direction:column;gap:14px">
+        <section class="card" id="summary" aria-live="polite"></section>
+
+        <div class="grid-2">
+          <section class="card" id="formCard">
+            <div class="card-h"><h2 data-i18n-b="formTitle">New Clinical Measurement (MANUAL ENTRY)</h2></div>
+            <p class="muted" style="font-size:12.5px;margin-bottom:10px" data-i18n-b="formHint"></p>
+            <form id="mform" novalidate>
+              <div class="fgrid">
+                <div class="field wide">
+                  <span class="lab" data-i18n-b="mBPlabel"></span>
+                  <div class="pair">
+                    <input id="f-sys" type="number" inputmode="numeric" min="60" max="260" step="1" placeholder="118" aria-label="Systolic">
+                    <span>/</span>
+                    <input id="f-dia" type="number" inputmode="numeric" min="30" max="160" step="1" placeholder="76" aria-label="Diastolic">
+                  </div>
+                  <span class="unit">mmHg</span>
+                </div>
+                <div class="field">
+                  <label for="f-glu" data-i18n-b="fGlu"></label>
+                  <input id="f-glu" type="number" inputmode="numeric" min="20" max="600" step="1" placeholder="90">
+                  <span class="unit">mg/dL</span>
+                </div>
+                <div class="field">
+                  <label for="f-ctx" data-i18n-b="fCtx"></label>
+                  <select id="f-ctx"><option value="fasting" data-i18n-b="ctxFasting"></option><option value="post" data-i18n-b="ctxPost"></option></select>
+                </div>
+                <div class="field">
+                  <label for="f-hr" data-i18n-b="fHR"></label>
+                  <input id="f-hr" type="number" inputmode="numeric" min="20" max="220" step="1" placeholder="64">
+                  <span class="unit">bpm</span>
+                </div>
+                <div class="field">
+                  <label for="f-spo2" data-i18n-b="fSpO2"></label>
+                  <input id="f-spo2" type="number" inputmode="numeric" min="50" max="100" step="1" placeholder="98">
+                  <span class="unit">%</span>
+                </div>
+                <div class="field">
+                  <label for="f-temp" data-i18n-b="fTemp"></label>
+                  <input id="f-temp" type="number" inputmode="decimal" min="30" max="43" step="0.1" placeholder="36.6">
+                  <span class="unit">°C</span>
+                </div>
+                <div class="field">
+                  <label for="f-sleep" data-i18n-b="fSleep"></label>
+                  <input id="f-sleep" type="number" inputmode="decimal" min="0" max="24" step="0.1" placeholder="7.0">
+                  <span class="unit" data-i18n-b="u_h"></span>
+                </div>
+              </div>
+              <p class="err" id="formErr" role="alert"></p>
+              <button class="ghost" id="liveBtn" type="button" data-i18n-b="liveFill" style="margin-top:8px;width:100%"></button>
+              <button class="primary" type="submit" data-i18n-b="save" style="margin-top:8px;width:100%"></button>
+            </form>
+          </section>
+          <section class="card" id="assessCard" aria-live="polite"></section>
+        </div>
+
+        <div class="grid-2">
+          <section class="card">
+            <div class="card-h"><h2 data-i18n-b="chartBP"></h2></div>
+            <div class="leg">
+              <span><i class="sw" style="background:var(--accent)"></i><span data-i18n-b="legSys"></span></span>
+              <span><i class="sw" style="background:var(--accent2)"></i><span data-i18n-b="legDia"></span></span>
+              <span><i class="sw band"></i><span data-i18n-b="legTarget"></span></span>
+            </div>
+            <div class="chart" id="chartBP"></div>
+          </section>
+          <section class="card">
+            <div class="card-h"><h2 data-i18n-b="chartGlu"></h2></div>
+            <div class="leg">
+              <span style="color:var(--accent)">●</span><span data-i18n-b="legFasting"></span>
+              <span style="color:var(--accent)">◆</span><span data-i18n-b="legPost"></span>
+              <span><i class="sw band"></i><span data-i18n-b="legTargetFast"></span></span>
+            </div>
+            <div class="chart" id="chartGlu"></div>
+          </section>
+        </div>
+
+        <section class="card" id="history">
+          <div class="card-h">
+            <h2 data-i18n-b="histTitle"></h2>
+            <button class="ghost" id="csvBtn" type="button" data-i18n-b="copyCsv"></button>
+          </div>
+          <div id="exNotice" hidden style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;font-size:12.5px;color:var(--muted)">
+            <span data-i18n-b="exNotice"></span>
+            <button class="ghost" id="rmEx" type="button" data-i18n-b="removeEx"></button>
+          </div>
+          <div class="scroll"><table>
+            <thead><tr id="thead"></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table></div>
+        </section>
+      </section>
+    </section>
+
+    <!-- 4. OMEGA 3D EXPLORER -->
+    <section class="module-view" id="view-explorer3d">
+      <div class="page-head">
+        <div>
+          <h1 data-i18n="exp3dTitle">Omega 3D Spatial Explorer</h1>
+          <p data-i18n="exp3dSub">Interactive anatomical Human Digital Twin, articulated Astronaut Exercise Bay, Habitat Cutaway, Orbital Trajectory, and Space Weather scenes.</p>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="cmd-btn" id="btnToggleAnim3D" type="button">⏸ Pause Anim</button>
+          <button class="cmd-btn" id="btnToggle3DFallback" type="button">2D Accessible View</button>
+          <button class="cmd-btn" id="btnReset3DCam" type="button">Reset Camera</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" role="tablist" aria-label="3D Scene Selector">
+          <button class="cmd-btn active" data-scene="twin" type="button">🧬 Human Digital Twin</button>
+          <button class="cmd-btn" data-scene="exercise" type="button">🏋️ Orbital Recovery &amp; Astronaut</button>
+          <button class="cmd-btn" data-scene="habitat" type="button">🛰️ Habitat Cutaway</button>
+          <button class="cmd-btn" data-scene="orbit" type="button">🌍 Earth–Moon–Mars Regimes</button>
+          <button class="cmd-btn" data-scene="weather" type="button">☀️ Space Weather &amp; Magnetosphere</button>
+          <button class="cmd-btn" type="button" onclick="setBodyMode()" id="bodyModeBtn">🧍 Realistic Body</button>
+          <button class="cmd-btn" type="button" onclick="preEvaCheck()">🧑‍🚀 Pre-EVA Readiness</button>
+        </div>
+
+        <div class="stage-wrap" id="threeStage">
+          <div class="hud-top">
+            <div class="hud-chip mono">
+              <div class="muted" style="font-size:10px" id="hudSceneBadge">ILLUSTRATIVE EDUCATIONAL MODEL — NOT A MEDICAL SCAN</div>
+              <div id="hudSceneTitle" style="font-weight:700">Human Digital Twin — Cardiovascular System</div>
+            </div>
+            <div class="hotspot-bar" id="cameraPresetBar"></div>
+          </div>
+          <div class="hud-bottom">
+            <div class="hotspot-bar" id="sceneHotspotBar"></div>
+            <div class="hud-chip mono" style="font-size:10.5px">CLICK NODE OR BUTTON • DRAG TO ROTATE • SCROLL/PINCH TO ZOOM</div>
+          </div>
+        </div>
+
+        <div class="fallback-2d" id="fallback2DContainer"></div>
+
+        <div class="sub-card" id="sceneDetailDrawer" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">
+          <h2>Visual Reference &amp; Asset Provenance Inspector</h2>
+          <span class="tag-badge ref">SECTION 14.8 • HONEST ASSET CLASSIFICATION</span>
+        </div>
+        <p class="muted" style="font-size:12.5px;margin-bottom:10px">Inspect uploaded UI mockups, spacecraft photos, anatomy diagrams, or texture maps (PNG, JPG, WebP). 2D images are classified by project role and never misrepresented as rigged 3D models or live patient scans.</p>
+        <div class="grid-2">
+          <div class="sub-card">
+            <label for="refImageInput" style="font-weight:700;font-size:13px">Inspect Local Image Reference (PNG / JPG / WebP)</label>
+            <input id="refImageInput" type="file" accept="image/png,image/jpeg,image/webp">
+            <div id="refImageMeta" class="mono muted" style="font-size:12px">No external file selected yet. Built-in reference baseline: 4 NASA Space Apps visual concept plates documented in ASTRA_AUDIT.md.</div>
+          </div>
+          <div class="sub-card" id="refImagePreviewBox" style="align-items:center;justify-content:center;min-height:140px">
+            <span class="muted" style="font-size:12px">Image preview &amp; classification metadata appear here upon selection.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. TIMELINE -->
+    <section class="module-view" id="view-timeline">
+      <div class="page-head">
+        <div>
+          <h1 data-i18n="tlPageTitle">Mission Memory — Longitudinal Health Timeline</h1>
+          <p data-i18n="tlPageSub">Unified chronological stream of check-ins, exercise sessions, manual measurements, and alerts. Missing intervals remain visibly empty.</p>
+        </div>
+        <button class="ghost" type="button" id="btnExportTimelineJson">Export Timeline JSON</button>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="tlFilterBar">
+          <button class="cmd-btn active" data-tlcat="all" type="button">All Records</button>
+          <button class="cmd-btn" data-tlcat="checkin" type="button">Daily Check-Ins</button>
+          <button class="cmd-btn" data-tlcat="exercise" type="button">Exercise &amp; Recovery</button>
+          <button class="cmd-btn" data-tlcat="vitals" type="button">Clinical Vitals</button>
+          <button class="cmd-btn" data-tlcat="alert" type="button">Alerts &amp; Events</button>
+        </div>
+        <div id="timelineFeedList" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </section>
+
+    <!-- 6. INSIGHTS & ALERTS -->
+    <section class="module-view" id="view-insights">
+      <div class="page-head">
+        <div>
+          <h1>Explainable Pattern Insights, Alert Center &amp; Space Weather</h1>
+          <p>Deterministic, non-diagnostic pattern screening, cohort distribution spread, and external NASA DONKI space-weather context.</p>
+        </div>
+        <button class="cmd-btn" type="button" id="btnFetchDonki">Fetch NASA DONKI Solar Flares</button>
+      </div>
+
+      <div class="card">
+        <div class="card-h">
+          <h2>Explainable Pattern Review (Deterministic Engine v1.4.0)</h2>
+          <span class="tag-badge der">NON-DIAGNOSTIC • TRACEABLE</span>
+        </div>
+        <div id="explainableInsightsList" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">
+          <h2>Crew Cohort Aggregate Spread (n = 4 Demo Fixture)</h2>
+          <span class="tag-badge der">GROUP DISTRIBUTION • NO INDIVIDUAL RANKING</span>
+        </div>
+        <p class="muted" style="font-size:12.5px;margin-bottom:10px">Displays min, median, and max values across the simulated crew members. Group spread never implies interpersonal compatibility or clinical diagnosis.</p>
+        <div class="grid-3" id="cohortSpreadGrid"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-h">
+            <h2>Smart Alert Center</h2>
+            <span class="mono muted" id="alertInboxCount">0 items</span>
+          </div>
+          <div id="smartAlertInbox" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-h">
+            <h2>Space Weather Context (Outside Vehicle)</h2>
+            <span class="tag-badge ref" id="donkiStatusTag">REFERENCE / NOT QUERIED</span>
+          </div>
+          <div class="disclaimer-box" style="margin-bottom:10px">
+            <span>☀️</span>
+            <span>External solar flares (NASA DONKI) describe heliophysics conditions outside the spacecraft and <b>never</b> represent an individual astronaut's absorbed radiation dose.</span>
+          </div>
+          <div id="spaceWeatherPanel" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. RESEARCH LIBRARY -->
+    <section class="module-view" id="view-research">
+      <div class="page-head">
+        <div>
+          <h1>NASA HRP &amp; OSDR Research Library</h1>
+          <p>Verified spaceflight hazard summaries, curated NASA Open Science Data Repository (OSDR) study metadata, and source provenance.</p>
+        </div>
+        <input id="researchSearchInput" type="search" placeholder="Search hazards, OSDR studies, AHA/ADA..." style="max-width:300px">
+      </div>
+
+      <div class="card">
+        <div class="card-h">
+          <h2>NASA Human Research Program — 5 Spaceflight Hazards</h2>
+          <span class="tag-badge ref">SRC-NASA-HRP-01</span>
+        </div>
+        <div class="grid-2" id="hrpHazardsGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">
+          <h2>NASA OSDR Curated Study Metadata (Population-Labeled)</h2>
+          <span class="tag-badge ref">SRC-NASA-OSDR-01</span>
+        </div>
+        <p class="muted" style="font-size:12.5px;margin-bottom:10px">OSDR datasets frequently originate from post-flight, ground-analog, rodent, or cellular experiments. Species and study context are always isolated from individual crew logs.</p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Study ID</th><th>Title</th><th>Organism / Context</th><th>Assay / Variables</th><th>Limitations</th></tr></thead>
+            <tbody id="osdrCatalogBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" id="nasaLiveCard">
+        <div class="card-h"><h2>NASA Live Sources</h2><span class="tag-badge ref" id="nasaLiveTag">NOT QUERIED</span></div>
+        <p class="muted" style="font-size:12.5px;margin-bottom:10px">Live requests to NASA OSDR (study metadata) and the NASA Image and Video Library. Results are research/media records, <b>not astronaut health readings</b>. A source is only marked LIVE after a request succeeds.</p>
+        <form id="nasaLiveForm" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <input id="nasaLiveQ" type="search" value="bone loss" style="flex:1;min-width:180px" aria-label="NASA search term">
+          <select id="nasaLiveSrc" aria-label="Source"><option value="osdr">OSDR studies</option><option value="images">NASA Images</option></select>
+          <button class="primary" type="submit">Search NASA</button>
+        </form>
+        <div id="nasaLiveOut" class="muted" style="font-size:12.5px">Run a search to query NASA.</div>
+      </div>
+    </section>
+
+    <!-- 8. SCENARIO LAB -->
+    <section class="module-view" id="view-scenario">
+      <div class="page-head">
+        <div>
+          <h1>Mission Scenario Lab &amp; Earth Communication Delay</h1>
+          <p>Explore hypothetical gravity, shielding, and light-time communication delay regimes. All outputs are educational simulations.</p>
+        </div>
+        <span class="tag-badge sim">SIMULATED SCENARIO • NOT MEDICAL PREDICTION</span>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-h"><h2>Earth-to-Space Light-Time Delay Simulator</h2></div>
+          <div class="field" style="margin-bottom:10px">
+            <label for="delayRegimeSelect">Select Mission Distance Regime</label>
+            <select id="delayRegimeSelect">
+              <option value="leo">Low Earth Orbit (ISS — 408 km • ~0.001 s one-way)</option>
+              <option value="lunar">Lunar South Pole / Gateway (384,400 km • 1.28 s one-way)</option>
+              <option value="mars_min">Mars Opposition (55M km • 3 min 03 s one-way)</option>
+              <option value="mars_max">Mars Conjunction (400M km • 22 min 13 s one-way)</option>
+            </select>
+          </div>
+          <div id="delayRegimeOutput"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><h2>Longitudinal Unloading &amp; Shielding What-If</h2></div>
+          <div class="fgrid">
+            <div class="field">
+              <label for="simDays">Duration (days): <b class="mono" id="simDaysLbl">180</b></label>
+              <input id="simDays" type="range" min="30" max="540" step="30" value="180">
+            </div>
+            <div class="field">
+              <label for="simGrav">Gravity Regime</label>
+              <select id="simGrav">
+                <option value="0">0.00 g (Microgravity)</option>
+                <option value="0.16">0.16 g (Lunar)</option>
+                <option value="0.38">0.38 g (Mars)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="simAred">ARED Adherence (%): <b class="mono" id="simAredLbl">85%</b></label>
+              <input id="simAred" type="range" min="0" max="100" step="5" value="85">
+            </div>
+            <div class="field">
+              <label for="simShield">Shielding (g/cm²): <b class="mono" id="simShieldLbl">20</b></label>
+              <input id="simShield" type="range" min="5" max="40" step="5" value="20">
+            </div>
+          </div>
+          <div class="chart" id="scenarioChartBox" style="margin-top:10px"></div>
+          <div id="scenarioKpiSummary" class="kpi-row" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. REPORTS & NOTES -->
+    <section class="module-view" id="view-reports">
+      <div class="page-head">
+        <div>
+          <h1>Report Builder &amp; Crew Handover Notes</h1>
+          <p>Generate provenance-stamped exports (JSON, CSV, Print/PDF) and preview handover notes before sharing. Private notes are never shared by default.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-h"><h2>Provenance-Stamped Report Builder</h2></div>
+          <div class="fgrid" style="margin-bottom:12px">
+            <div class="field">
+              <label for="repRange">Date Window</label>
+              <select id="repRange">
+                <option value="7">Last 7 Days</option>
+                <option value="21" selected>Last 21 Days</option>
+                <option value="all">All Available Records</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="repCat">Include Categories</label>
+              <select id="repCat">
+                <option value="all">All (Check-ins + Exercise + Vitals)</option>
+                <option value="checkin">Daily Check-Ins Only</option>
+                <option value="exercise">Exercise &amp; Recovery Only</option>
+                <option value="vitals">Clinical Vitals Only</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <button class="primary" type="button" id="btnDownloadRepJson">Download JSON</button>
+            <button class="ghost" type="button" id="btnDownloadRepCsv">Download CSV</button>
+            <button class="ghost" type="button" onclick="window.print()">Print / Save PDF</button>
+          </div>
+          <div class="sub-card" id="reportPreviewBox"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-h">
+            <h2>Crew Support &amp; Handover Notes</h2>
+            <span class="tag-badge ref">PRIVATE BY DEFAULT • NO RANKINGS</span>
+          </div>
+          <div class="field" style="margin-bottom:10px">
+            <label for="handoverNoteInput">Draft Operational Handover Summary (Non-Private)</label>
+            <textarea id="handoverNoteInput" placeholder="e.g., Completed 45-min ARED session; cabin acoustics slightly elevated in Node 2."></textarea>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:10px;cursor:pointer">
+            <input type="checkbox" id="includeCheckinOptIn" style="width:18px;min-height:18px">
+            <span>Explicitly include latest sleep duration &amp; exercise completion status (private reflections remain excluded)</span>
+          </label>
+          <button class="cmd-btn" type="button" id="btnOpenSharePreview">Open Share Preview</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. SETTINGS & DIAGNOSTICS -->
+    <section class="module-view" id="view-settings">
+      <div class="page-head">
+        <div>
+          <h1>Settings, Privacy Controls &amp; System Diagnostics</h1>
+          <p>Configure motion intensity, 3D rendering quality, NASA API key (session memory only), and inspect live runtime health.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-h"><h2>User Preferences &amp; Data Control</h2></div>
+          <div class="fgrid">
+            <div class="field">
+              <label for="setMotion">Motion Intensity</label>
+              <select id="setMotion">
+                <option value="full">Full Motion</option>
+                <option value="reduced">Reduced Motion</option>
+                <option value="minimal">Minimal Motion</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="setGfx">3D Graphics Quality</label>
+              <select id="setGfx">
+                <option value="auto" selected>Auto (Adaptive)</option>
+                <option value="low">Low (1.0x DPR • Battery Saver)</option>
+                <option value="balanced">Balanced (1.5x DPR)</option>
+                <option value="high">High (2.0x DPR)</option>
+              </select>
+            </div>
+            <div class="field wide">
+              <label for="setNasaKey">NASA Open API Key (Optional — Session Memory Only)</label>
+              <input id="setNasaKey" type="password" placeholder="DEMO_KEY">
+              <small>Never stored in source code or exported files.</small>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+            <button class="ghost" type="button" id="btnResetDemoData">Reset Demo Fixtures</button>
+            <button class="ghost" type="button" id="btnPurgeLocalData" style="border-color:var(--crit);color:#fca5a5">Delete All Local User Entries</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><h2>Live Runtime Diagnostics</h2></div>
+          <div id="sysDiagnosticsList"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="inspector" aria-label="Mission Control Inspector">
+    <div class="sub-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="k-lbl">CONTEXTUAL INSPECTOR</span>
+        <span class="tag-badge" id="inspTag">ASTRA Ω</span>
+      </div>
+      <div style="font-size:15px;font-weight:700" id="inspHeading">Jamal — Commander</div>
+      <p class="muted" style="font-size:12.5px" id="inspSummary"></p>
+      <div id="inspKvContainer"></div>
+    </div>
+    <div class="sub-card">
+      <div class="k-lbl">EVIDENCE &amp; SAFETY BOUNDARY</div>
+      <p class="muted" style="font-size:12px">ASTRA Ω is an independent research &amp; educational prototype. Not a medical device and not endorsed by NASA. For urgent health concerns, contact the designated flight surgeon or medical support channel.</p>
+    </div>
+  </aside>
+
+</div>
+
+<nav class="bottom-nav" aria-label="Mobile Primary Navigation">
+  <button class="bnav-btn active" data-dest="home" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    <span data-i18n="bnavHome">Home</span>
+  </button>
+  <button class="bnav-btn" data-dest="smartmonitor" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <span data-i18n="bnavMonitor">Monitor</span>
+  </button>
+  <button class="bnav-btn" data-dest="checkin" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <span data-i18n="bnavCheckin">Check-in</span>
+  </button>
+  <button class="bnav-btn" data-dest="explorer3d" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg>
+    <span data-i18n="bnav3D">3D View</span>
+  </button>
+  <button class="bnav-btn" id="btnMobileMore" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+    <span data-i18n="bnavMore">More</span>
+  </button>
+</nav>
+
+<div class="modal-backdrop" id="moreModal" role="dialog" aria-modal="true" aria-label="More Modules">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="font-size:15px">ASTRA Ω — All Modules</h2>
+      <button class="ghost" type="button" onclick="closeModal('moreModal')">Close</button>
+    </div>
+    <div class="more-grid">
+      <button class="more-tile" type="button" onclick="closeModal('moreModal');navigateTo('smartmonitor')"><span>💓 Smart Health Monitor</span><small>125 Hz ECG &amp; 3D Scanner</small></button>
+      <button class="more-tile" type="button" onclick="closeModal('moreModal');navigateTo('activity')"><span>🏃 Health &amp; Activity</span><small>Exercise &amp; clinical log</small></button>
+      <button class="more-tile" type="button" onclick="closeModal('moreModal');navigateTo('timeline')"><span>🕒 Timeline</span><small>Mission Memory stream</small></button>
+      <button class="more-tile" type="button" onclick="closeModal('moreModal');navigateTo('insights')"><span>🔔 Insights &amp; Alerts</span><small>Patterns &amp; DONKI</small></button>
+      <button class="more-tile" type="button" onclick="closeModal('moreModal');navigateTo('research')"><span>📚 Research Library</span><small>NASA HRP &amp; OSDR</small></button>
+      <button class="more-tile" type="button" onclick="closeModal('moreModal');navigateTo('scenario')"><span>🛸 Scenario Lab</span><small>Delay &amp; what-if</small></button>
+      <button class="more-tile" type="button" onclick="closeModal('moreModal');navigateTo('reports')"><span>📄 Reports &amp; Notes</span><small>Export &amp; handover</small></button>
+      <button class="more-tile" type="button" onclick="closeModal('moreModal');navigateTo('settings')"><span>⚙️ Settings</span><small>Quality, motion &amp; data</small></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="onboardingModal" role="dialog" aria-modal="true" aria-label="Welcome to ASTRA Omega">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="tag-badge sim">INDEPENDENT PROTOTYPE • NON-DIAGNOSTIC</span>
+      <button class="ghost" type="button" onclick="finishOnboarding()">Skip Tour</button>
+    </div>
+    <h2 style="font-size:1.2rem" data-i18n="onbWelcome">Welcome to ASTRA Ω</h2>
+    <p class="muted" style="font-size:13px" data-i18n="onbDesc">ASTRA helps astronauts and space-health researchers log daily check-ins, track exercise &amp; recovery, inspect 3D physiological and habitat context, and trace every insight back to verified sources.</p>
+    <div class="disclaimer-box">
+      <span>🛡️</span>
+      <span><b>Important Boundary:</b> ASTRA is an educational and research prototype — not a medical device, not a clinical diagnosis tool, and not affiliated with or endorsed by NASA.</span>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label for="onbLang">Language / اللغة</label>
+        <select id="onbLang">
+          <option value="en">English (LTR)</option>
+          <option value="ar">العربية (RTL)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="onbUiMode">Experience Mode</label>
+        <select id="onbUiMode">
+          <option value="quick">Quick Mode (Simple Daily Use)</option>
+          <option value="mc">Mission Control (Full Analytics)</option>
+        </select>
+      </div>
+    </div>
+    <div class="sub-card" style="font-size:12.5px">
+      <b>4-Step Quick Orientation:</b>
+      <div>1. <b>Smart Health Monitor HUD:</b> Inspect 125 Hz PPG/ECG telemetry, 0G cephalad fluid shift, InBody 970 profile, and the 3D Wireframe Holographic Scanner.</div>
+      <div>2. <b>Home &amp; Check-in:</b> Log sleep, energy, mood, and hydration in under 60 seconds.</div>
+      <div>3. <b>Health &amp; Activity:</b> Record exercise &amp; recovery sessions alongside manual clinical vitals.</div>
+      <div>4. <b>Omega 3D Explorer &amp; Evidence Passport:</b> Inspect the sculpted Human Digital Twin, Habitat Cutaway, and Earth–Moon–Mars Regimes.</div>
+    </div>
+    <button class="primary" type="button" onclick="finishOnboarding()">Start Using ASTRA Ω</button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="evidenceModal" role="dialog" aria-modal="true" aria-label="Evidence Passport">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="tag-badge ref">EVIDENCE PASSPORT • PROVENANCE</span>
+      <button class="ghost" type="button" onclick="closeModal('evidenceModal')">Close</button>
+    </div>
+    <h2 id="evModalTitle" style="font-size:1.1rem">Provenance Trace</h2>
+    <div id="evModalBody" style="display:flex;flex-direction:column;gap:8px;font-size:13px"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="shareModal" role="dialog" aria-modal="true" aria-label="Handover Share Preview">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="tag-badge man">SHARE PREVIEW • PRIVACY VERIFIED</span>
+      <button class="ghost" type="button" onclick="closeModal('shareModal')">Cancel</button>
+    </div>
+    <h2 style="font-size:1.05rem">Review Handover Payload Before Copying</h2>
+    <p class="muted" style="font-size:12.5px">Private mood/symptom notes are stripped unless explicitly approved. No other crew member's records are included.</p>
+    <pre id="sharePreviewText" style="background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:10px;font-family:var(--font-mono);font-size:12px;white-space:pre-wrap"></pre>
+    <button class="primary" type="button" id="btnConfirmCopyShare">Copy Handover Summary</button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="inbodyModal" role="dialog" aria-modal="true" aria-label="Manual InBody Entry">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="tag-badge man">INBODY 970 MANUAL ENTRY</span>
+      <button class="ghost" type="button" onclick="closeModal('inbodyModal')">Close</button>
+    </div>
+    <h2 style="font-size:1.05rem">Update Body Composition Profile</h2>
+    <form id="smInbodyForm" class="fgrid">
+      <div class="field">
+        <label for="ib-weight">Total Weight (kg)</label>
+        <input id="ib-weight" type="number" step="0.1" min="40" max="150" value="76.4">
+      </div>
+      <div class="field">
+        <label for="ib-muscle">Skeletal Muscle Mass (kg)</label>
+        <input id="ib-muscle" type="number" step="0.1" min="15" max="70" value="36.8">
+      </div>
+      <div class="field wide">
+        <label for="ib-fat">Body Fat (%)</label>
+        <input id="ib-fat" type="number" step="0.1" min="3" max="45" value="14.2">
+      </div>
+      <div class="field wide">
+        <button type="submit" class="primary">Apply to Smart Monitor</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer class="statusbar">
+  <div>ASTRA Ω v6.1 INTEGRATED • <span id="sbStatusLine">LOCAL STORAGE + TEST FIXTURES + SMART TELEMETRY HUD • NOT A MEDICAL DEVICE</span></div>
+  <div>NASA Space Apps 2026 Independent Prototype</div>
+</footer>
+
+<div class="toast" id="toast" role="status"><span></span></div>
+
+
+
+<!-- PRESERVED CLINICAL VITALS & 21-DAY CHARTS MODULE (orbital-vitals-v1) -->
+
+
+<!-- PRESERVED NASA OSDR & NASA IMAGES LIVE CONNECTOR -->
+
+<script src="main.js"></script>
+</body>
+</html>
